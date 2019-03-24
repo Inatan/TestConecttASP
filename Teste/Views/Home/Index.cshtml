@@ -1,0 +1,163 @@
+﻿@model Teste.Models.Pessoa
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Teste Conectt</h1>
+</div>
+
+@using (Html.BeginForm("Relatorio", "Home", FormMethod.Post, new { id = "fomulario" }))
+{
+<fieldset>
+    <legend> Informações Cadastrais</legend>
+    <div class="row">
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.Nome)</b> <b class="text-danger">*</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.Nome, new { @class = "form-control form-control-lg", @placeholder = "Nome" })
+                <br>
+                @Html.ValidationMessageFor(x => x.Nome, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.CPF)</b> <b class="text-danger">*</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.CPF)
+                <br>
+                @Html.ValidationMessageFor(x => x.CPF, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.Nascimento)</b> <b class="text-danger">*</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.Nascimento)
+                <br>
+                @Html.ValidationMessageFor(x => x.Nascimento, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.Email)</b> <b class="text-danger">*</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.Email, new { @class = "form-control form-control-lg", @placeholder = "Nome" })
+
+                <br>
+                @Html.ValidationMessageFor(x => x.Email, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.Empresa)</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.Empresa)
+                <br>
+                @Html.ValidationMessageFor(x => x.Empresa, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.TelefoneComercial)</b>
+            </div>
+            <div>
+                @Html.EditorFor(x => x.TelefoneComercial)
+                <br>
+                @Html.ValidationMessageFor(x => x.TelefoneComercial, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div>
+                <b>@Html.LabelFor(x => x.TelefoneCelular)</b> 
+            </div>
+            <div>
+                @Html.EditorFor(x => x.TelefoneCelular, new { @class = "form-control form-control-lg", @placeholder = "Nome" })
+                <br>
+                @Html.ValidationMessageFor(x => x.TelefoneCelular, "", new { @class = "text-danger" })
+            </div>
+        </div>
+    </div>
+        <br>
+        <div>
+            <input class="btn btn-primary" type="button" value="Enviar " id="btnEnviar" />
+            @Html.ActionLink("Relatório", "Relatorio", null, new { @class = "btn btn-primary" })
+        </div>
+
+</fieldset>
+
+}
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryval")
+@Scripts.Render("~/bundles/jquerymask")
+
+<script type="text/javascript">
+
+    $("#CPF").mask('999.999.999-99');
+    $("#TelefoneComercial").mask("(99)9999-9999");
+    $("#TelefoneCelular").mask('(99)99999-9999');
+
+    $(document).ready(function () {
+
+        $("#btnEnviar").on("click",function () {
+
+            
+            var form = $("#fomulario");
+            form.validate();
+            if (!form.valid()) {
+                return;
+            }
+
+            var Nome = $("#Nome").val();
+            var CPF = $("#CPF").val();
+            var Nascimento = $("#Nascimento").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/VerificaCadastroExistente",
+                data: { CPF: CPF, Nome: Nome, Nascimento: Nascimento },
+                success: function (data) {
+                    if (data != "") {
+                        alert(data);
+                        return;
+                    }
+                    else {
+                        var data = $("#fomulario").serialize();
+                        $.ajax({
+                            type: "POST",
+                            url: "/Home/Adicionar",
+                            data: data,
+                            success: function () {
+                                alert("Formulário enviado com sucesso. Em breve entraremos em contato.");
+                                $(':input', '#fomulario')
+                                    .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
+                                    .val('');
+                            }
+
+                        })
+                    }
+                }
+            })
+            
+        })
+
+    })
+
+
+
+</script>
